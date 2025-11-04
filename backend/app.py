@@ -13,9 +13,21 @@ app = Flask(__name__)
 CORS(app)
 
 # Configuration
-DATABASE_URL = os.getenv('DATABASE_URL', 'mysql+pymysql://root:@localhost/mypal_db')
-if DATABASE_URL.startswith('mysql://'):
-    DATABASE_URL = DATABASE_URL.replace('mysql://', 'mysql+pymysql://', 1)
+# Build DATABASE_URL from individual MySQL environment variables
+# This avoids issues with special characters in Railway
+MYSQLUSER = os.getenv('MYSQLUSER')
+MYSQLPASSWORD = os.getenv('MYSQLPASSWORD')
+MYSQLHOST = os.getenv('MYSQLHOST')
+MYSQLPORT = os.getenv('MYSQLPORT')
+MYSQLDATABASE = os.getenv('MYSQLDATABASE')
+
+# Build connection string for production, fallback to localhost for dev
+if all([MYSQLUSER, MYSQLPASSWORD, MYSQLHOST, MYSQLPORT, MYSQLDATABASE]):
+    DATABASE_URL = f'mysql+pymysql://{MYSQLUSER}:{MYSQLPASSWORD}@{MYSQLHOST}:{MYSQLPORT}/{MYSQLDATABASE}'
+else:
+    # Development fallback
+    DATABASE_URL = 'mysql+pymysql://root:@localhost/mypal_db'
+    
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'dev-secret-key')
