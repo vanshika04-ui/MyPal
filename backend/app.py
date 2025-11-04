@@ -13,32 +13,35 @@ app = Flask(__name__)
 CORS(app)
 
 # Configuration
-# Build DATABASE_URL from individual MySQL environment variables
-# This avoids issues with special characters in Railway
-MYSQLUSER = os.getenv('MYSQLUSER')
-MYSQLPASSWORD = os.getenv('MYSQLPASSWORD')
-MYSQLHOST = os.getenv('MYSQLHOST')
-MYSQLPORT = os.getenv('MYSQLPORT')
-MYSQLDATABASE = os.getenv('MYSQLDATABASE')
+# Try to get DATABASE_URL from environment (Railway sets this via plugin)
+# First try direct MYSQL_URL reference
+DATABASE_URL = os.getenv('MYSQL_URL') or os.getenv('DATABASE_URL')
 
-# Debug logging to see what Railway provides
-print("=" * 50)
-print("DEBUG: Environment Variables Check")
-print(f"MYSQLHOST: {MYSQLHOST if MYSQLHOST else 'MISSING'}")
-print(f"MYSQLPORT: {MYSQLPORT if MYSQLPORT else 'MISSING'}")
-print(f"MYSQLDATABASE: {MYSQLDATABASE if MYSQLDATABASE else 'MISSING'}")
-print(f"MYSQLUSER: {MYSQLUSER if MYSQLUSER else 'MISSING'}")
-print(f"MYSQLPASSWORD: {'SET' if MYSQLPASSWORD else 'MISSING'}")
-print("=" * 50)
+# If Railway provides mysql://, convert to mysql+pymysql://
+if DATABASE_URL and DATABASE_URL.startswith('mysql://'):
+    DATABASE_URL = DATABASE_URL.replace('mysql://', 'mysql+pymysql://', 1)
+    print(f"✓ Converted Railway MySQL URL")
 
-if all([MYSQLUSER, MYSQLPASSWORD, MYSQLHOST, MYSQLPORT, MYSQLDATABASE]):
-    DATABASE_URL = f'mysql+pymysql://{MYSQLUSER}:{MYSQLPASSWORD}@{MYSQLHOST}:{MYSQLPORT}/{MYSQLDATABASE}'
-    print(f"✓ Using MySQL at {MYSQLHOST}")
-else:
-    DATABASE_URL = 'mysql+pymysql://root:@localhost/mypal_db'
-    print("✗ WARNING: Falling back to localhost - MySQL vars missing!")
+# If still no DATABASE_URL, try building from individual vars
+if not DATABASE_URL:
+    MYSQLUSER = os.getenv('MYSQLUSER')
+    MYSQLPASSWORD = os.getenv('MYSQLPASSWORD')
+    MYSQLHOST = os.getenv('MYSQLHOST')
+    MYSQLPORT = os.getenv('MYSQLPORT')
+    MYSQLDATABASE = os.getenv('MYSQLDATABASE')
     
+    print(f"DEBUG - Variables: USER={MYSQLUSER}, HOST={MYSQLHOST}, PORT={MYSQLPORT}, DB={MYSQLDATABASE}")
+    
+    if all([MYSQLUSER, MYSQLPASSWORD, MYSQLHOST, MYSQLPORT, MYSQLDATABASE]):
+        DATABASE_URL = f'mysql+pymysql://{MYSQLUSER}:{MYSQLPASSWORD}@{MYSQLHOST}:{MYSQLPORT}/{MYSQLDATABASE}'
+        print(f"✓ Built DATABASE_URL from individual variables")
+    else:
+        # Fallback - but this shouldn't happen in production
+        print("✗ WARNING: No MySQL config found!")
+        DATABASE_URL = 'sqlite:///temp.db'  # Temporary SQLite as last resort
+
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+print(f"Final DATABASE_URL starts with: {DATABASE_URL[:20]}...")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'dev-secret-key')
 
