@@ -21,12 +21,22 @@ MYSQLHOST = os.getenv('MYSQLHOST')
 MYSQLPORT = os.getenv('MYSQLPORT')
 MYSQLDATABASE = os.getenv('MYSQLDATABASE')
 
-# Build connection string for production, fallback to localhost for dev
+# Debug logging to see what Railway provides
+print("=" * 50)
+print("DEBUG: Environment Variables Check")
+print(f"MYSQLHOST: {MYSQLHOST if MYSQLHOST else 'MISSING'}")
+print(f"MYSQLPORT: {MYSQLPORT if MYSQLPORT else 'MISSING'}")
+print(f"MYSQLDATABASE: {MYSQLDATABASE if MYSQLDATABASE else 'MISSING'}")
+print(f"MYSQLUSER: {MYSQLUSER if MYSQLUSER else 'MISSING'}")
+print(f"MYSQLPASSWORD: {'SET' if MYSQLPASSWORD else 'MISSING'}")
+print("=" * 50)
+
 if all([MYSQLUSER, MYSQLPASSWORD, MYSQLHOST, MYSQLPORT, MYSQLDATABASE]):
     DATABASE_URL = f'mysql+pymysql://{MYSQLUSER}:{MYSQLPASSWORD}@{MYSQLHOST}:{MYSQLPORT}/{MYSQLDATABASE}'
+    print(f"✓ Using MySQL at {MYSQLHOST}")
 else:
-    # Development fallback
     DATABASE_URL = 'mysql+pymysql://root:@localhost/mypal_db'
+    print("✗ WARNING: Falling back to localhost - MySQL vars missing!")
     
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
