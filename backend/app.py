@@ -14,6 +14,8 @@ CORS(app)
 
 # Configuration
 DATABASE_URL = os.getenv('DATABASE_URL', 'mysql+pymysql://root:@localhost/mypal_db')
+if DATABASE_URL.startswith('mysql://'):
+    DATABASE_URL = DATABASE_URL.replace('mysql://', 'mysql+pymysql://', 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'dev-secret-key')
