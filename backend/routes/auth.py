@@ -1,5 +1,6 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from werkzeug.security import generate_password_hash, check_password_hash
 from database import db
 from models.user import User
 
@@ -19,9 +20,8 @@ def register():
         if User.query.filter_by(username=data['username']).first():
             return jsonify({"error": "Username already exists"}), 400
         
-        # Get bcrypt from app
-        bcrypt = current_app.extensions.get('bcrypt')
-        hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
+        # Hash password using werkzeug (built-in, no bcrypt needed)
+        hashed_password = generate_password_hash(data['password'])
         
         user = User(
             username=data['username'],
@@ -47,8 +47,8 @@ def login():
         
         user = User.query.filter_by(email=data['email']).first()
         
-        bcrypt = current_app.extensions.get('bcrypt')
-        if user and bcrypt.check_password_hash(user.password_hash, data['password']):
+        # Check password using werkzeug
+        if user and check_password_hash(user.password_hash, data['password']):
             access_token = create_access_token(identity=user.id)
             return jsonify({
                 "message": "Login successful",
