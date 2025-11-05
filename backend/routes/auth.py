@@ -1,3 +1,17 @@
+@bp.route('/register', methods=['POST'])
+def register():
+    print("=" * 50)
+    print("REGISTER ROUTE CALLED!")
+    print(f"Request Method: {request.method}")
+    print(f"Request URL: {request.url}")
+    print(f"Request Data: {request.get_json()}")
+    print("=" * 50)
+    
+    try:
+        from flask import current_app
+        data = request.get_json()
+        # ... rest of your code
+
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from database import db
