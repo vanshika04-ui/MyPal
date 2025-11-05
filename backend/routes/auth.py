@@ -49,7 +49,7 @@ def login():
         
         # Check password using werkzeug
         if user and check_password_hash(user.password_hash, data['password']):
-            access_token = create_access_token(identity=user.id)
+            access_token = create_access_token(identity=str(user.id))
             return jsonify({
                 "message": "Login successful",
                 "access_token": access_token,
@@ -64,7 +64,7 @@ def login():
 @jwt_required()
 def profile():
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         user = User.query.get(user_id)
         if not user:
             return jsonify({"error": "User not found"}), 404

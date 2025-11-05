@@ -9,7 +9,7 @@ bp = Blueprint('habits', __name__, url_prefix='/api/habits')
 @jwt_required()
 def get_habits():
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         habits = Habit.query.filter_by(user_id=user_id).all()
         return jsonify([h.to_dict() for h in habits]), 200
     except Exception as e:
@@ -19,7 +19,7 @@ def get_habits():
 @jwt_required()
 def create_habit():
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         data = request.get_json()
         
         if not data.get('name'):
@@ -43,7 +43,7 @@ def create_habit():
 @jwt_required()
 def delete_habit(id):
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         habit = Habit.query.filter_by(id=id, user_id=user_id).first()
         
         if not habit:

@@ -10,7 +10,7 @@ bp = Blueprint('journals', __name__, url_prefix='/api/journals')
 @jwt_required()
 def get_journals():
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         journals = Journal.query.filter_by(user_id=user_id).order_by(Journal.created_at.desc()).all()
         return jsonify([j.to_dict() for j in journals]), 200
     except Exception as e:
@@ -20,7 +20,7 @@ def get_journals():
 @jwt_required()
 def create_journal():
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         data = request.get_json()
         
         if not data.get('content'):
@@ -47,7 +47,7 @@ def create_journal():
 @jwt_required()
 def get_journal(id):
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         journal = Journal.query.filter_by(id=id, user_id=user_id).first()
         
         if not journal:
@@ -61,7 +61,7 @@ def get_journal(id):
 @jwt_required()
 def delete_journal(id):
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         journal = Journal.query.filter_by(id=id, user_id=user_id).first()
         
         if not journal:
