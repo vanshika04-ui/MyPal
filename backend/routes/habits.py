@@ -6,6 +6,7 @@ from models.habit import Habit
 bp = Blueprint('habits', __name__, url_prefix='/api/habits')
 
 @bp.route('/', methods=['GET'])
+@bp.route('', methods=['GET'])
 @jwt_required()
 def get_habits():
     try:
@@ -16,6 +17,7 @@ def get_habits():
         return jsonify({"error": str(e)}), 500
 
 @bp.route('/', methods=['POST'])
+@bp.route('', methods=['POST'])
 @jwt_required()
 def create_habit():
     try:

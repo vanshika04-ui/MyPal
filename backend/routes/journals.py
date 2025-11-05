@@ -7,6 +7,7 @@ from utils.nlp_analysis import analyze_sentiment
 bp = Blueprint('journals', __name__, url_prefix='/api/journals')
 
 @bp.route('/', methods=['GET'])
+@bp.route('', methods=['GET'])
 @jwt_required()
 def get_journals():
     try:
@@ -17,6 +18,7 @@ def get_journals():
         return jsonify({"error": str(e)}), 500
 
 @bp.route('/', methods=['POST'])
+@bp.route('', methods=['POST'])
 @jwt_required()
 def create_journal():
     try:
