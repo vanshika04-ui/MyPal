@@ -9,6 +9,32 @@ from database import db
 # Load environment variables
 load_dotenv()
 
+# ========== NLTK Data Setup for TextBlob/Sentiment Analysis ==========
+# Download required NLTK data on first run
+# This ensures TextBlob and future AI/ML features work properly
+import nltk
+import ssl
+
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
+
+# Download required NLTK data quietly
+try:
+    nltk.data.find('corpora/brown')
+    print("✓ NLTK data already downloaded")
+except LookupError:
+    print("📥 Downloading NLTK data for sentiment analysis...")
+    nltk.download('brown', quiet=True)
+    nltk.download('punkt', quiet=True)
+    nltk.download('averaged_perceptron_tagger', quiet=True)
+    nltk.download('wordnet', quiet=True)
+    print("✓ NLTK data downloaded successfully")
+# ========== End NLTK Setup ==========
+
 app = Flask(__name__)
 CORS(app)
 
