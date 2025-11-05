@@ -2,8 +2,10 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from database import db
 from models.user import User
+from flask_bcrypt import Bcrypt
 
 bp = Blueprint('auth', __name__, url_prefix='/api/auth')
+bcrypt = Bcrypt()
 
 @bp.route('/register', methods=['POST'])
 def register():
