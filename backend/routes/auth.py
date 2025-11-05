@@ -1,18 +1,4 @@
-@bp.route('/register', methods=['POST'])
-def register():
-    print("=" * 50)
-    print("REGISTER ROUTE CALLED!")
-    print(f"Request Method: {request.method}")
-    print(f"Request URL: {request.url}")
-    print(f"Request Data: {request.get_json()}")
-    print("=" * 50)
-    
-    try:
-        from flask import current_app
-        data = request.get_json()
-        # ... rest of your code
-
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from database import db
 from models.user import User
@@ -22,7 +8,6 @@ bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 @bp.route('/register', methods=['POST'])
 def register():
     try:
-        from flask import current_app
         data = request.get_json()
         
         if not data.get('email') or not data.get('password') or not data.get('username'):
@@ -34,7 +19,7 @@ def register():
         if User.query.filter_by(username=data['username']).first():
             return jsonify({"error": "Username already exists"}), 400
         
-        # Get bcrypt from app extensions
+        # Get bcrypt from app
         bcrypt = current_app.extensions.get('bcrypt')
         hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
         
@@ -55,7 +40,6 @@ def register():
 @bp.route('/login', methods=['POST'])
 def login():
     try:
-        from flask import current_app
         data = request.get_json()
         
         if not data.get('email') or not data.get('password'):
