@@ -112,7 +112,18 @@ def home():
 
 @app.route('/health')
 def health():
-    return jsonify({"status": "healthy"})
+    try:
+        # Try to execute a simple query to check database connection
+        db.session.execute(db.text('SELECT 1'))
+        db_status = "connected"
+    except Exception as e:
+        db_status = f"disconnected: {str(e)}"
+    
+    return {
+        "status": "healthy",
+        "database": db_status,
+        "version": "1.0.0"
+    }
 
 if __name__ == '__main__':
     with app.app_context():
