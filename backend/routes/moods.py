@@ -23,7 +23,7 @@ def create_mood():
         mood = Mood(
             user_id=user_id,
             mood_level=mood_level,
-            note=data.get('note', '')
+            notes=data.get('notes', '') 
         )
         
         db.session.add(mood)
