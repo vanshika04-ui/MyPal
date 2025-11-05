@@ -75,6 +75,7 @@ print(f"✓ Database URL loaded: {DATABASE_URL}")
 
 # Initialize extensions
 db.init_app(app)
+CORS(app)
 jwt = JWTManager(app)
 bcrypt = Bcrypt(app)
 
@@ -125,9 +126,12 @@ def health():
         "version": "1.0.0"
     }
 
+# Create tables on app startup (works with gunicorn)
+with app.app_context():
+    db.create_all()
+    print("✓ Database tables created/verified")
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     
     # Use environment variable for port (Railway sets this)
     port = int(os.environ.get('PORT', 5000))
